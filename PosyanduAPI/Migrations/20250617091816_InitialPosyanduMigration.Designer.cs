@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PosyanduAPI.Data;
@@ -11,9 +12,11 @@ using PosyanduAPI.Data;
 namespace PosyanduAPI.Migrations
 {
     [DbContext(typeof(PosyanduContext))]
-    partial class PosyanduContextModelSnapshot : ModelSnapshot
+    [Migration("20250617091816_InitialPosyanduMigration")]
+    partial class InitialPosyanduMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

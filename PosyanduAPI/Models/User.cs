@@ -11,6 +11,6 @@
         public byte[] PasswordHash { get; set; } = new byte[0];
         public byte[] PasswordSalt { get; set; } = new byte[0];
         public string UserType { get; set; } = string.Empty; 
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; }
     }
 }

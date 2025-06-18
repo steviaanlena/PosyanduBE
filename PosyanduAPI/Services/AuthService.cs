@@ -61,8 +61,7 @@ namespace PosyanduAPI.Services
                 NoTelp = userRegisterDto.NoTelp,
                 PasswordHash = passwordHash,
                 PasswordSalt = passwordSalt,
-                UserType = userRegisterDto.UserType,
-                CreatedAt = DateTime.Now
+                UserType = userRegisterDto.UserType
             };
 
             _context.Users.Add(user);
