@@ -8,6 +8,10 @@ using PosyanduAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configure to use Railway's assigned port
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+
 // Add services to the container
 builder.Services.AddControllers();
 
@@ -65,14 +69,27 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-// Configure CORS
+// Configure CORS - Updated for Railway deployment
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        policy.WithOrigins(builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()!)
-            .AllowAnyHeader()
-            .AllowAnyMethod();
+        // Get allowed origins from configuration for Railway deployment
+        var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
+
+        if (allowedOrigins != null && allowedOrigins.Length > 0)
+        {
+            policy.WithOrigins(allowedOrigins);
+        }
+        else
+        {
+            // Default fallback - replace with your actual Vercel URL
+            policy.WithOrigins("https://your-vercel-app.vercel.app");
+        }
+
+        policy.AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
     });
 });
 
@@ -82,17 +99,41 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline
-if (app.Environment.IsDevelopment())
+// Enable Swagger in production for Railway (you can disable this later)
+if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Posyandu API v1");
+        c.RoutePrefix = "swagger"; // Access via /swagger
+    });
+}
+
+// Add middleware for better error handling in production
+if (app.Environment.IsProduction())
+{
+    app.UseExceptionHandler("/Error");
+    app.UseHsts();
 }
 
 app.UseCors();
-
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
+
+// Add a health check endpoint
+app.MapGet("/health", () => new {
+    status = "healthy",
+    timestamp = DateTime.UtcNow,
+    environment = app.Environment.EnvironmentName
+});
+
+// Add root endpoint
+app.MapGet("/", () => new {
+    message = "Posyandu API is running",
+    version = "v1",
+    swagger = "/swagger"
+});
 
 app.Run();
