@@ -83,8 +83,10 @@ builder.Services.AddCors(options =>
         }
         else
         {
-            // Default fallback - replace with your actual Vercel URL
-            policy.WithOrigins("https://posyandu-fe.vercel.app");
+            // Default fallback - replace with your actual
+            //
+            // URL
+            policy.WithOrigins("https://posyandu-sukabumi.vercel.app");
         }
 
         policy.AllowAnyHeader()
